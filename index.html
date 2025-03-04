@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="container" id="loginContainer">
+        <h1>ACTIVE CODE</h1>
+        <h2>أدخل الـ ID وكلمة المرور</h2>
+        <input type="text" id="id" placeholder="أدخل الـ ID">
+        <input type="password" id="password" placeholder="أدخل كلمة المرور">
+        <button onclick="checkLogin()">تحقق</button>
+    </div>
+
+    <div class="container hidden" id="adminContainer">
+        <h1>إدارة الأكواد</h1>
+        <h2>أدخل الـ ID لتعديله</h2>
+        <input type="text" id="adminTargetID" placeholder="أدخل ID المستخدم">
+        <button onclick="showBoxesForAdmin()">عرض الأكواد</button>
+    </div>
+
+    <div class="container hidden" id="boxesContainer">
+        <h1>إدارة الأكواد</h1>
+        <h2>عدد الأكواد المتاحة:</h2>
+        <p id="codesDisplay">0</p>
+        <button id="addCodeButton" class="hidden" onclick="addCode()">إضافة كود</button>
+        <div id="codes"></div>
+        <button id="saveButton" onclick="saveCodes()">حفظ البيانات</button>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
