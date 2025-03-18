@@ -1,0 +1,25 @@
+function doGet(e) {
+    var sheet = SpreadsheetApp.openById("191fYruEVIITym8cgBKP4WuXg3dSCIrwS024sQClj1Ks").getSheetByName("Sheet1");
+    var data = sheet.getDataRange().getValues();
+    var result = [];
+
+    for (var i = 1; i < data.length; i++) {
+        result.push({
+            user: data[i][0],
+            password: data[i][1],
+            card_number: data[i][2],
+            client_name: data[i][3],
+            package: data[i][4],
+            distributor: data[i][5],
+            issue_date: data[i][6],
+            end_date: data[i][7],
+            amount_paid: data[i][8],
+            additional_purchase: data[i][9],
+            payment_method: data[i][10],
+            cost_of_service: data[i][11],
+            total_payment: data[i][12]
+        });
+    }
+
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
