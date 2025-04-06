@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Client Login</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #111; color: #fff; display: flex; justify-content: center; align-items: center; height: 100vh; flex-direction: column; }
+    .login-box, .data-box { background: #222; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #000; max-width: 400px; width: 100%; }
+    input { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 4px; }
+    button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    .hidden { display: none; }
+    .error { color: red; text-align: center; margin-top: 10px; }
+    .whatsapp { margin-top: 20px; text-align: center; }
+    .whatsapp a { color: #25d366; text-decoration: none; font-weight: bold; }
+    pre { background: #000; padding: 10px; border-radius: 5px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <div class="login-box" id="login-box">
+    <h2>Client Login</h2>
+    <input type="text" id="user" placeholder="USER" />
+    <input type="password" id="pass" placeholder="PASSWORD" />
+    <button onclick="login()">Login</button>
+    <div class="error" id="error"></div>
+  </div>
+
+  <div class="data-box hidden" id="data-box">
+    <h2>Your Subscription Info</h2>
+    <pre id="client-data"></pre>
+    <div class="whatsapp">
+      <a href="https://wa.me/201234567890" target="_blank">Contact Support on WhatsApp</a>
+    </div>
+  </div>
+
+  <script>
+    const sheetID = "191fYruEVIITym8cgBKP4WuXg3dSCIrwS024sQClj1Ks";
+    const sheetName = "Sheet1";
+    const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?sheet=${sheetName}`;
+    const query = encodeURIComponent("Select *");
+    const url = `${base}&tq=${query}`;
+
+    let sheetData = [];
+
+    fetch(url)
+      .then(res => res.text())
+      .then(rep => {
+        const data = JSON.parse(rep.substr(47).slice(0, -2));
+        sheetData = data.table.rows.map(row => row.c.map(cell => cell ? cell.v : ""));
+      });
+
+    function login() {
+      const u = document.getElementById("user").value.trim();
+      const p = document.getElementById("pass").value.trim();
+      const errorBox = document.getElementById("error");
+      errorBox.textContent = "";
+
+      if (u === "ELMIX" && p === "123456789") {
+        document.getElementById("login-box").classList.add("hidden");
+        document.getElementById("data-box").classList.remove("hidden");
+        document.getElementById("client-data").textContent = "Admin Panel (not implemented in this version)";
+        return;
+      }
+
+      const headers = ["USER", "PASSWORD", "SmartCard", "CLINT NAME", "Dedicated Package", "Your distributor", "Issue Date", "End Date", "Amountpaid", "Additionalpurchasepackage", "Paymentmethod", "Costofservice", "Totalpayment"];
+      const userRow = sheetData.find(row => row[0] === u && row[1] === p);
+
+      if (userRow) {
+        const displayData = headers.map((h, i) => `${h}: ${userRow[i] || "-"}`).join("\n");
+        document.getElementById("login-box").classList.add("hidden");
+        document.getElementById("data-box").classList.remove("hidden");
+        document.getElementById("client-data").textContent = displayData;
+      } else {
+        errorBox.textContent = "Invalid USER or PASSWORD";
+      }
+    }
+  </script>
+</body>
+</html>
