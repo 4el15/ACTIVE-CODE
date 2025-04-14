@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>تسجيل الدخول</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background-color: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      text-align: center;
+    }
+    h1, h2 {
+      font-size: 24px;
+      color: #4CAF50;
+      margin-bottom: 10px;
+    }
+    input, button {
+      padding: 10px;
+      width: 80%;
+      margin: 10px 0;
+      border: 2px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+    .box-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .delete-btn {
+      background-color: red;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-left: 10px;
+      padding: 5px;
+      border-radius: 4px;
+    }
+    .toggle-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      margin-left: 10px;
+      cursor: pointer;
+      border: none;
+    }
+    .green {
+      background-color: green;
+    }
+    .red {
+      background-color: red;
+    }
+    .copy-btn {
+      margin-left: 5px;
+      padding: 5px;
+      font-size: 12px;
+      border-radius: 4px;
+      background-color: #2196F3;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    input[type="text"] {
+      width: 80%;
+      height: 40px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="loginContainer">
+  <h1>ACTIVE CODE</h1>
+  <h2>أدخل الـ ID وكلمة المرور</h2>
+  <input type="text" id="id" placeholder="أدخل الـ ID">
+  <input type="password" id="password" placeholder="أدخل كلمة المرور">
+  <button onclick="checkLogin()">تحقق</button>
+</div>
+
+<div class="container hidden" id="adminContainer">
+  <h1>إدارة الصناديق</h1>
+  <h2>أدخل الـ ID لتعديله</h2>
+  <input type="text" id="adminTargetID" placeholder="أدخل ID المستخدم">
+  <button onclick="showBoxesForAdmin()">عرض الصناديق</button>
+</div>
+
+<div class="container hidden" id="boxesContainer">
+  <h1>HYPER</h1>
+  <h2>POINTS:</h2>
+  <p id="pointsDisplay">0</p>
+  <button id="addBoxButton" class="add-btn hidden" onclick="addBox()">+</button>
+  <div id="boxes"></div>
+  <button id="saveButton" onclick="saveBoxes()">حفظ البيانات</button>
+</div>
+
+<script>
+  const userData = {
+    "1160": {
+      password: "123456789",
+      boxes: ["402185469", "697294478", "7272668"],
+      balance: 60, // إضافة الرصيد هنا
+    },
+    "2580": {
+      password: "987654321",
+      boxes: ["671710677", "014830354"],
+      balance: 0, // إضافة الرصيد هنا
+    },
+    "2700": {
+      password: "01097699815",
+      boxes: ["admin1", "admin2"],
+      balance: 200, // إضافة الرصيد هنا
+    }
+  };
+
+  let toggleStates = JSON.parse(localStorage.getItem('toggleStates')) || {};
+  let currentID = null;
+  let editingUserID = null;
+
+  // Load user data from localStorage if available
+  function loadUserData() {
+    const storedUserData = JSON.parse(localStorage.getItem('userData')) || {};
+    for (const id in storedUserData) {
+      if (storedUserData.hasOwnProperty(id)) {
+        userData[id] = storedUserData[id];
+      }
+    }
+  }
+
+  function saveUserData() {
+    localStorage.setItem('userData', JSON.stringify(userData));
+  }
+
+  function saveToggleStates() {
+    localStorage.setItem('toggleStates', JSON.stringify(toggleStates));
+  }
+
+  function checkLogin() {
+    const enteredID = document.getElementById('id').value;
+    const enteredPassword = document.getElementById('password').value;
+
+    if (userData[enteredID] && userData[enteredID].password === enteredPassword) {
+      document.getElementById('loginContainer').classList.add('hidden');
+      currentID = enteredID;
+
+      if (enteredID === '2700') {
+        document.getElementById('adminContainer').classList.remove('hidden');
+      } else {
+        showBoxes(enteredID);
+      }
+    } else {
+      alert('ID أو كلمة المرور غير صحيحة!');
+    }
+  }
+
+  function showBoxesForAdmin() {
+    const targetID = document.getElementById('adminTargetID').value;
+    if (!targetID || !userData[targetID]) {
+      alert('هذا ID غير موجود أو لا يحتوي على صناديق.');
+      return;
+    }
+
+    editingUserID = targetID;
+    showBoxes(targetID);
+  }
+
+  function showBoxes(userID) {
+    document.getElementById('boxesContainer').classList.remove('hidden');
+    const boxes = userData[userID].boxes || [];
+    const points = userData[userID].balance; // الحصول على الرصيد من البيانات
+    document.getElementById('pointsDisplay').textContent = points;
+
+    const boxesDiv = document.getElementById('boxes');
+    boxesDiv.innerHTML = '';
+
+    if (currentID === '2700') {
+      document.getElementById('addBoxButton').classList.remove('hidden');
+      document.getElementById('saveButton').classList.remove('hidden');
+    } else {
+      document.getElementById('addBoxButton').classList.add('hidden');
+      document.getElementById('saveButton').classList.add('hidden');
+    }
+
+    boxes.forEach((value, index) => {
+      createBox(userID, value, index);
+    });
+  }
+
+  function createBox(userID, value = "", index = null) {
+    const boxesDiv = document.getElementById('boxes');
+
+    let boxContainer = document.createElement('div');
+    boxContainer.classList.add('box-container');
+
+    let input = document.createElement('input');
+    input.type = 'text';
+    input.value = "مغلق";  // القيمة تبدأ مغلقة
+    input.dataset.index = index;
+    input.dataset.userID = userID;
+    input.readOnly = true;
+
+    let toggleBtn = document.createElement('button');
+    toggleBtn.classList.add('toggle-btn');
+    let toggleKey = `${userID}-${index}`;
+    toggleBtn.classList.add(toggleStates[toggleKey] === 'red' ? 'red' : 'green');
+
+    toggleBtn.onclick = function () {
+      if (toggleBtn.classList.contains('green')) {
+        toggleBtn.classList.remove('green');
+        toggleBtn.classList.add('red');
+        toggleStates[toggleKey] = 'red';
+      } else {
+        toggleBtn.classList.remove('red');
+        toggleBtn.classList.add('green');
+        toggleStates[toggleKey] = 'green';
+      }
+      saveToggleStates();
+    };
+
+    let payBtn = document.createElement('button');
+    payBtn.textContent = 'دفع';
+    payBtn.classList.add('copy-btn');
+    payBtn.onclick = function () {
+      const points = userData[userID].balance;
+      if (points >= 30) {
+        input.value = value || "تم فتح الصندوق"; // القيمة الفعلية تظهر هنا بعد الدفع
+        userData[userID].balance -= 30; // خصم الرصيد
+        document.getElementById('pointsDisplay').textContent = userData[userID].balance; // تحديث الرصيد
+        saveUserData(); // حفظ البيانات بعد الخصم
+
+        payBtn.style.display = 'none'; // إخفاء دفع
+        let copyBtn = document.createElement('button');
+        copyBtn.textContent = 'نسخ';
+        copyBtn.classList.add('copy-btn');
+        copyBtn.onclick = function () {
+          input.select();
+          input.setSelectionRange(0, 99999);
+          try {
+            document.execCommand("copy");
+            alert("تم نسخ الكود!");
+          } catch (err) {
+            alert("حدث خطأ أثناء النسخ.");
+          }
+        };
+        boxContainer.appendChild(copyBtn); // إضافة زر نسخ
+
+        // حفظ حالة الصندوق كتم فتحه
+        localStorage.setItem(`${userID}-${index}-state`, 'opened');
+      } else {
+        alert('الرصيد غير كافٍ');
+      }
+    };
+
+    // إذا تم فتح الصندوق من قبل، نعرضه كمفتوح
+    const boxState = localStorage.getItem(`${userID}-${index}-state`);
+    if (boxState === 'opened') {
+      input.value = "تم فتح الصندوق";
+      payBtn.style.display = 'none';
+    }
+
+    boxContainer.appendChild(toggleBtn);
+    boxContainer.appendChild(input);
+    boxContainer.appendChild(payBtn);
+    if (currentID === '2700') {
+      let deleteBtn = document.createElement('button');
+      deleteBtn.textContent = '❌';
+      deleteBtn.classList.add('delete-btn');
+      deleteBtn.onclick = function () {
+        deleteBox(userID, index);
+      };
+      boxContainer.appendChild(deleteBtn);
+    }
+
+    boxesDiv.appendChild(boxContainer);
+  }
+
+  function addBox() {
+    if (!editingUserID) return;
+    if (!userData[editingUserID].boxes) {
+      userData[editingUserID].boxes = [];
+    }
+    userData[editingUserID].boxes.push(""); // إضافة صناديق فارغة
+    showBoxes(editingUserID);
+    saveUserData(); // حفظ البيانات بعد إضافة الصندوق
+  }
+
+  function deleteBox(userID, index) {
+    if (!userData[userID].boxes) return;
+    userData[userID].boxes.splice(index, 1);
+    showBoxes(userID);
+    saveUserData(); // حفظ البيانات بعد الحذف
+  }
+
+  function saveBoxes() {
+    saveUserData(); // حفظ البيانات
+  }
+
+  // إضافة 60 نقطة لـ ID1160 عند تحميل الصفحة
+  userData["1160"].balance += 60;
+  saveUserData(); // حفظ البيانات بعد التعديل
+
+</script>
+
+</body>
+</html>
