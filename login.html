@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل الدخول</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #121212;
+      color: white;
+      text-align: center;
+      padding-top: 150px;
+    }
+    .login-container {
+      background-color: #1d1d1d;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+      display: inline-block;
+      width: 300px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+      background-color: #333;
+      color: white;
+      font-size: 16px;
+    }
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 5px #00FF00;
+    }
+    .button {
+      background-color: #00FF00;
+      color: black;
+      padding: 15px;
+      width: 100%;
+      border: none;
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .button:hover {
+      background-color: #00cc00;
+    }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-container">
+    <h2>تسجيل الدخول</h2>
+    <form id="loginForm">
+      <input type="text" id="user" placeholder="اسم المستخدم" required><br>
+      <input type="password" id="password" placeholder="كلمة المرور" required><br>
+      <button type="button" class="button" onclick="login()">دخول</button>
+    </form>
+    <p class="error" id="error-message"></p>
+  </div>
+
+  <script>
+    const users = {
+      "1160": { password: "pass1160", permissions: "user" },
+      "2580": { password: "pass2580", permissions: "restricted" },
+      "2700": { password: "pass2700", permissions: "admin" },
+      "7980": { password: "pass7980", permissions: "none" }
+    };
+
+    function login() {
+      const user = document.getElementById("user").value;
+      const password = document.getElementById("password").value;
+      const errorMessage = document.getElementById("error-message");
+
+      if (users[user] && users[user].password === password) {
+        if (user == "1160" || user == "2580" || user == "2700" || user == "7980") {
+          window.location.href = "home.html";
+        }
+      } else {
+        errorMessage.textContent = "اسم المستخدم أو كلمة المرور غير صحيحة.";
+      }
+    }
+  </script>
+
+</body>
+</html>
